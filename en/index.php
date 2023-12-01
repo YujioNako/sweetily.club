@@ -413,7 +413,7 @@
             var viewer = [];
             var status = 0;
             var request = new XMLHttpRequest();
-            request.open('GET', '/data.json?'+Math.random().toString(36).substring(7), true);
+            request.open('GET', '/data/data.json?'+Math.random().toString(36).substring(7), true);
             request.responseType = 'json';
             request.onload = function() {
               if (request.readyState === 4 && request.status === 200) {
@@ -431,7 +431,7 @@
                 
                 var baseinfo = {};
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', '/profile.json');
+                xhr.open('GET', '/data/profile.json');
                 xhr.responseType = 'json';
                 xhr.onload = async function() {
                   if (xhr.readyState === 4 && xhr.status === 200) {
@@ -641,7 +641,7 @@
                 const currentTime = new Date(currentDate.replace(' ', 'T'));
             
                 let dayAgo = null;
-                for (let j = i - time*280; j >= 0; j--) {
+                for (let j = i - time*280 + 144; j >= 0; j--) {
                   const [prevDate, prevFans] = data[j];
                   const prevTime = new Date(prevDate.replace(' ', 'T'));
                   let timeDiff = Math.abs(currentTime - prevTime);
@@ -674,64 +674,60 @@
             var rate30 = fans_dif(fans, 30);
             
             
-            function fansk(data, time) {
-              let result = [];
-            
-              for (let i = 0; i < data.length; i=i+12) {
-                const [currentDate, currentFans] = data[i];
-                const currentTime = new Date(currentDate.replace(' ', 'T'));
-            
-                let dayAgo = [];
-                let timeDiff = 0;
-                for (let j = i - 0; j >= 0; j--) {
-                  const [prevDate, prevFans] = data[j];
-                  const prevTime = new Date(prevDate.replace(' ', 'T'));
-                  timeDiff = Math.abs(currentTime - prevTime);
-            
-                  if (timeDiff <= (time - 1) * 24 * 60 * 60 * 1000 + 23.8 * 60 * 60 * 1000) {
-                    dayAgo.push(prevFans);
-                  } else {
-                    dayAgo.push(prevFans);
-                    break;
+            function fansk(data, time){ // 一段时间内粉丝量均值
+                let result = [];
+                
+                // Loop through each record
+                for (let i = 0; i < data.length; i=i+12) {
+                  let record = data[i];
+                
+                  // Find the record from one day ago
+                  let dayAgo = [];
+                  for (let j = parseInt(i-144*time)<0?0:parseInt(i-144*time); j < data.length; j++) {
+                    let timeDiff = Math.abs(new Date(record[0].replace(' ', 'T')) - new Date(data[j][0].replace(' ', 'T'))); //iPadOS似乎不支持Date(x-x-x x:x:x)，但支持(x-x-xTx:x:x)
+                    if (timeDiff <= (0.5*(time*24*60*60*1000) + 0.1*60*60*1000)) {
+                        if(data[j][1]!==0) {
+                            dayAgo.push(data[j][1]);
+                        } else if (dayAgo.length===0) {
+                            dayAgo.push(0);
+                        }
+                    }
+                    else if(dayAgo.length!==0) {
+                        break
+                    }
+                  }
+                  
+                
+                  // Calculate the fan difference
+                  let fansDiff = null;
+                  if (JSON.stringify(dayAgo) !== '[]') {
+                    var sum = 0;
+                    for (var k = 0; k < dayAgo.length; k++) {
+                      sum += dayAgo[k];
+                    }
+                    fansDiff = sum / dayAgo.length;
+                  }
+                 
+                 
+                 
+                  // Add the result to the output array
+                  if (time != 1 && fansDiff != null) {fansDiff = fansDiff.toFixed(2);}
+                  if (i < time*2) {fansDiff = null;}
+                  if(fansDiff != null) {
+                      result.push(
+                         [record[0], fansDiff]
+                      );
                   }
                 }
-            
-                let fansDiff = null;
-                if (dayAgo.length > 0) {
-                  const sum = dayAgo.reduce((total, fans) => total + fans, 0);
-                  fansDiff = (sum * time) / dayAgo.length;
-                }
-            
-                if (time !== 1 && fansDiff !== null) {
-                  fansDiff = (fansDiff / time).toFixed(2);
-                }
-                if (i < time * 2) {
-                  fansDiff = null;
-                }
-            
-                result.push([currentDate, fansDiff]);
-              }
-            
-              let nullCount = 0;
-              for (let i = 0; i < result.length - nullCount; i++) {
-                if (result[i][1] === null) {
-                  while (result[result.length - nullCount - 1][1] === null) {
-                    nullCount++;
-                    if (result.length - nullCount - 1 < 0) break;
-                  }
-            
-                  for (let j = i; j < result.length - nullCount - 1; j++) {
-                    [result[j][1], result[j + 1][1]] = [result[j + 1][1], result[j][1]];
-                  }
-                }
-              }
-            
-              console.log(result);
-              return result;
+                
+
+                
+                console.log(result);
+                return result;
             }
             
             var fanskk = fansk(fans, 1);
-            var viewerk = fansk(viewer, 0.041);
+            var viewerk = fansk(viewer, 0.055);
             
             function fans_node(fans, delta_time) { //获取粉丝里程碑数组
                 // 假设 fans 和 time 数组已经定义并填充了相应的值

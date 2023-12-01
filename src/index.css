@@ -64,10 +64,10 @@ body {
   bottom: 0;
   left: 0;
   z-index: -1;
-  background-image: linear-gradient(to right, rgba(238, 238, 238, 1) 15%, rgba(238, 238, 238, 0.6) 30%, rgba(238, 238, 238, 0) 40%), url(/img/bg2.webp);
+  background-image: linear-gradient(to right, rgba(238, 238, 238, 1) 20%, rgba(238, 238, 238, 0.6) 35%, rgba(238, 238, 238, 0) 45%), url(/img/bg1.webp);
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: right bottom, right -250px bottom -30px;
+  background-position: right bottom, right -200px bottom 0px;
 }
 
 #baseinfo_box {
@@ -164,10 +164,10 @@ input[type="text"]:hover {
       bottom: 0;
       left: 0;
       z-index: -1;
-      background-image: linear-gradient(to right, rgba(238, 238, 238, 1) 0%, rgba(238, 238, 238, 0.6) 0%, rgba(238, 238, 238, 0.35) 0%), url(/img/bg2.webp);
+      background-image: linear-gradient(to right, rgba(238, 238, 238, 1) 0%, rgba(238, 238, 238, 0.6) 0%, rgba(238, 238, 238, 0.35) 0%), url(/img/bg1.webp);
       background-repeat: no-repeat;
       background-size: cover;
-      background-position: right bottom, right -300px bottom -30px;
+      background-position: right bottom, right -250px bottom 0px;
     }
 
 

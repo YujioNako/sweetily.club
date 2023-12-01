@@ -111,7 +111,7 @@ base_info = get_base_info(username, headers)
 channel_id = base_info['channel_id']
 print(f"{base_info['avatar']}\n{base_info['display_name']} ({base_info['live_url']})\n{base_info['description']}\nTA于{base_info['created_at']}加入Twitch")
 print('========================')
-with open('profile.json', 'w') as f:
+with open('./data/profile.json', 'w') as f:
     json.dump(base_info, f)
 
 # 循环打印关注者关注者数与同接数
@@ -129,7 +129,7 @@ def main():
             print(f"时间：{viewer_result['time']} 未直播")
         print('------------------------')
         data = {'time': follow_result['time'], 'fans': follow_result['fans'], 'viewer': viewer_result['viewers'], 'status': viewer_result['status']}
-        write_json(data, 'data.json')
+        write_json(data, './data/data.json')
         time.sleep(300)
 
 while True:
