@@ -711,7 +711,7 @@
                  
                  
                   // Add the result to the output array
-                  if (time != 1 && fansDiff != null) {fansDiff = fansDiff.toFixed(2);}
+                  if (fansDiff != null) {fansDiff = fansDiff.toFixed(2);}
                   if (i < time*2) {fansDiff = null;}
                   if(fansDiff != null) {
                       result.push(
