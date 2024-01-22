@@ -30,7 +30,6 @@ html {
     z-index: 9999;
 }
 
-
 #story {
     max-width:1000px;
     margin-top: 15px;
@@ -49,6 +48,13 @@ html {
 #twitch-embed {
   display: flex;
   justify-content: center;
+}
+
+#link_box {
+  float: right;
+  margin-top: 32px;
+  padding: 0px 15px;
+  background-image: linear-gradient(to right, rgba(238, 238, 238, 0) 0%, rgba(238, 238, 238, 0.6) 5%, rgba(238, 238, 238, 0.8) 10%, rgba(238, 238, 238, 0.8) 90%, rgba(238, 238, 238, 0.6) 95%, rgba(238, 238, 238, 0) 100%);
 }
             
 body {
@@ -184,6 +190,8 @@ input[type="text"]:hover {
     position: relative;
     display: inline-block;
     margin-top: 15px;
+    opacity: 0.5;
+    transition: all 0.3s ease;
 }
 
 .gray-overlay::before {
@@ -215,4 +223,8 @@ input[type="text"]:hover {
     text-align: center;
     width: 75%;
     max-width: 800px;
+}
+
+.gray-overlay:hover {
+    opacity: 1.0;
 }

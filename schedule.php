@@ -216,7 +216,7 @@ $weekDaysMap = array(
 );
 
 if (isset($scheduleData) && is_array($scheduleData)) {
-    echo '<table>';
+    echo '<table align="center">';
     $startTime = $scheduleData[0]['start_time'];
     if ($isChinese)
         echo '<caption>直播预告</caption><caption>下一次直播时间为 ' . $weekDaysMap[date('l', strtotime($startTime))] . 'UTC+8 ' . date('H:i', strtotime($startTime)) . '</caption><thead style="white-space:nowrap"><tr><th>标题</th><th>计划日期</th><th>开始时间</th><th>结束时间</th></tr></thead>';
