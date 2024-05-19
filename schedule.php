@@ -221,7 +221,7 @@ if (isset($scheduleData) && is_array($scheduleData)) {
     if ($isChinese)
         echo '<caption>直播预告</caption><caption>下一次直播时间为 ' . $weekDaysMap[date('l', strtotime($startTime))] . 'UTC+8 ' . date('H:i', strtotime($startTime)) . '</caption><thead style="white-space:nowrap"><tr><th>标题</th><th>计划日期</th><th>开始时间</th><th>结束时间</th></tr></thead>';
     else
-        echo '<caption>Upcoming stream</caption><caption>The next stream is on ' . date('l', strtotime($startTime)) . ' at ' . date('H:i', strtotime($startTime)) . ' UTC+8</caption><thead style="white-space:nowrap"><tr><th>Title</th><th>Scheduled Date</th><th>Start Time</th><th>End Time</th></tr></thead>';
+        echo '<caption>Upcoming Stream</caption><caption>The next stream is on ' . date('l', strtotime($startTime)) . ' at ' . date('H:i', strtotime($startTime)) . ' UTC+8</caption><thead style="white-space:nowrap"><tr><th>Title</th><th>Scheduled Date</th><th>Start Time</th><th>End Time</th></tr></thead>';
     echo '<tbody>';
     $index = 1;
     foreach ($scheduleData as $segment) {
@@ -243,7 +243,7 @@ if (isset($scheduleData) && is_array($scheduleData)) {
         }
     }
 } else {
-    echo '时间表不存在<br>Schedule undefined.';
+    echo '时间表不存在!<br>No schedule now.';
 }
 echo '</tbody>';
 echo '</table>';
@@ -306,7 +306,7 @@ if (isset($videosData['data']) &&  is_array($videosData['data'])) {
     echo '</tbody>';
     echo '</table>';
 } else {
-    echo '暂无录播信息<br>No videos information now';
+    echo '暂无录播信息!<br>No recordings information now.';
 }
 
 function UTC8($timestamp) {
@@ -327,7 +327,7 @@ function UTC8($timestamp) {
 if($isChinese) {
     echo '<p>上次更新(时间表|录播表)：';
 } else {
-    echo '<p>Last update time (Schedule|Videos): ';
+    echo '<p>Last updating time (Schedule|Recordings list): ';
 }
 echo UTC8(filemtime($schedule_cacheFile)).' | ';
 echo UTC8(filemtime($videos_cacheFile)).'</p>';

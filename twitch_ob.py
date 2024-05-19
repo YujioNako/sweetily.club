@@ -68,7 +68,7 @@ def get_subscriber_count(channel_id, headers):  # 需要user token，废弃
     url = f"https://api.twitch.tv/helix/subscriptions?broadcaster_id={channel_id}"
     response = requests.get(url, headers=headers)
     subscriber_data = response.json()
-    # print(subscriber_data)
+    print(subscriber_data)
 
     subscriber_count = {'subscribers': subscriber_data.get("total", 0),
                         'time': datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
