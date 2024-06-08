@@ -8,10 +8,23 @@ function alert(content, timeout){
 
 
 
+// 在页面加载时检查是否存在上次访问的页面地址
+/*
+window.addEventListener('load', function() {
+  const lastVisitedPage = localStorage.getItem('lastVisitedPage');
+  console.log(document.referrer)
+
+  if (lastVisitedPage&&!document.referrer) {
+    // 跳转到上次访问的页面
+    window.location.href = lastVisitedPage;
+  }
+});
+*/
+
 if (!localStorage.getItem("first-visited")) {
     if(window.location.href.indexOf('en') !== -1 && navigator.language.startsWith('zh'))
       window.location.href = '/';
-    else if(window.location.href.indexOf('en') === -1 && !navigator.language.startsWith('zh'))
+    else if(window.location.href.indexOf('zh') !== -1 && navigator.language.startsWith('en'))
       window.location.href = '/en';
     else{
       // 设置标记表示已访问过
@@ -33,16 +46,6 @@ if (!localStorage.getItem("first-visited")) {
       }
     }
 }
-
-// 在页面加载时检查是否存在上次访问的页面地址
-window.addEventListener('load', function() {
-  const lastVisitedPage = localStorage.getItem('lastVisitedPage');
-
-  if (lastVisitedPage&&!document.referrer) {
-    // 跳转到上次访问的页面
-    window.location.href = lastVisitedPage;
-  }
-});
 
 // 在页面离开前保存当前页面地址
 window.addEventListener('beforeunload', function() {

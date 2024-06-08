@@ -2,7 +2,6 @@
 <?php
     session_start();
     error_reporting(0);
-    require 'email.class.php';
     require 'ip2region/Ip2Region.php';
     
     
@@ -131,23 +130,24 @@
           
             function sendmailto($mailto, $mailsub, $mailbd)
             {
-              //require_once ('email.class.php');
-              //##########################################
-              $smtpserver   = "ssl://smtp.ym.163.com"; //SMTP服务器
-              $smtpserverport = 465; //SMTP服务器端口
-              $smtpusermail  = "ldcivan@pro-ivan.cn"; //SMTP服务器的用户邮箱
-              $smtpemailto  = $mailto;
-              $smtpuser    = "ldcivan@pro-ivan.cn"; //SMTP服务器的用户帐号
-              $smtppass    = "Ldc123456"; //SMTP服务器的用户密码
-              $mailsubject  = $mailsub; //邮件主题
-              $mailsubject  = "=?UTF-8?B?" . base64_encode($mailsubject) . "?="; //防止乱码
-              $mailbody    = $mailbd; //邮件内容
-              //$mailbody = "=?UTF-8?B?".base64_encode($mailbody)."?="; //防止乱码
-              $mailtype    = "HTML"; //邮件格式（HTML/TXT）,TXT为文本邮件. 139邮箱的短信提醒要设置为HTML才正常
-              ##########################################
-              $smtp      = new smtp($smtpserver, $smtpserverport, true, $smtpuser, $smtppass); //这里面的一个true是表示使用身份验证,否则不使用身份验证.
-              $smtp->debug  = false; //是否显示发送的调试信息
-              $smtp->sendmail($smtpemailto, $smtpusermail, $mailsubject, $mailbody, $mailtype);
+                $mail_data = array(
+                    'mailto' => $mailto,
+                    'subject' => $mailsub,
+                    'body' => $mailbd
+                );
+
+                $mail_url = 'https://pro-ivan.com/api/e-mail/'; // 替换为实际的邮件发送 URL
+                $mail_data = http_build_query($mail_data);
+            
+                $ch = curl_init($mail_url);
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $mail_data);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                $mail_response = curl_exec($ch);
+                curl_close($ch);
+            
+                echo $mail_response;
             }
             $mailto='2531667489@qq.com'; //收件人
             $subject="新留言通报(妮露狐粉丝站)"; //邮件主题

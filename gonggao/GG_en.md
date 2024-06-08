@@ -20,3 +20,5 @@ Unless otherwise specified, all time string on this website are in the UTC+8 tim
 <br>
 > Chart rendering thread separated from main thread
 <br>
+> Load chart step by step. Debug: can not open "/en"
+<br>

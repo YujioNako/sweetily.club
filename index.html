@@ -234,7 +234,7 @@
     		            <div style="float:left;margin-left:5px; margin-top: 10px;">
     		                <h1 id="name" style="margin-left:10px; display: inline-block;">未输入uid</h1>
     		                <div id="level-box" class="level-box">
-                              <span id="level-text" class="level-text">Off</span>
+                              <span id="level-text" class="level-text">OFF</span>
                             </div>
                             <div id="official_verify" class="mdui-typo-body-3-opacity" style="margin-left:10px; margin-right:10px;"><i class="mdui-list-item-icon mdui-icon material-icons">error</i>&nbsp;输入id才看得到观测记录哦~</div>
     		            </div>
@@ -274,7 +274,7 @@
 		        </div>
 		        <div id="base_info" style="margin-top:15px;"></div><br>
 		        <div id="chart_box" class="mdui-table-fluid mdui-table th" style="width: 100%;height: auto;margin: 0 auto;">
-		            <div id="chart" style="height:95%;width:99%;margin-top:15px;"><h1><center onclick="init(false,true)" style="cursor: pointer;">点击以加载观测内容</center></h1></div>
+		            <div id="chart" style="height:95%;width:99%;margin-top:15px;"><h1><center onclick="init(false,true,base_loading_length)" style="cursor: pointer;">点击以加载观测内容</center></h1></div>
 		        </div>
 		        <div id="notes" class="mdui-table-fluid mdui-table th" style="width: 100%; text-align: center;box-sizing: border-box;margin: 0 auto;"></div><br>
 		        <HR style='FILTER:alpha(opacity=100,finishopacity=0,style=3)' width='90%' color=#C0C0C0 SIZE=3>
@@ -412,7 +412,15 @@
 	<script src="/src/index.js"></script>
 	
 		<script type="text/javascript">
-		function init(type,chart_type) {
+		var base_loading_length = 9000;
+		var meta_data = [];
+		var fanskk = [];
+        var viewerk = [];
+        var rate1 = [];
+        var rate7 = [];
+        var rate30 = [];
+        var fans_nodes = [];
+		function init(type,chart_type,loading_length) {
 		    document.getElementById('name').innerHTML = "加载中";
 		    document.getElementById('official_verify').innerHTML = '<i class="mdui-list-item-icon mdui-icon material-icons">file_download</i>&nbsp;正在拉取数据……'
             var myChart;
@@ -426,7 +434,13 @@
             request.responseType = 'json';
             request.onload = function() {
               if (request.readyState === 4 && request.status === 200) {
-                data = request.response;
+                if(meta_data.length === 0)
+                    meta_data = request.response;
+                if (meta_data.length >= loading_length) {
+                    data = meta_data.slice(-loading_length); // 截取最后 loading_length 项
+                } else {
+                    data = meta_data;
+                }
                 for (var i = 0; i < data.length; i++) {
                   time.push(data[i].time);
                   fans.push(data[i].fans);
@@ -485,7 +499,7 @@
                       }
                     if(status==1){
                         document.getElementById('level-box').classList.add(`onlive`);
-                        document.getElementById('level-text').innerHTML = "Live"
+                        document.getElementById('level-text').innerHTML = "LIVE"
                         if(type){
                             if (document.getElementById('body').offsetWidth >= 850){
                                 loadTwitchEmbedScript(1500, 0.45, "video-with-chat");
@@ -497,7 +511,7 @@
                     }
                     else{
                         document.getElementById('level-box').classList.remove(`onlive`);
-                        document.getElementById('level-text').innerHTML = "Off"
+                        document.getElementById('level-text').innerHTML = "OFF"
                         if(type) {
                           document.getElementById('twitch-embed').innerHTML=`
                             <iframe
@@ -626,7 +640,7 @@
             
             
 		}
-		init(true,false);
+		init(true,false,base_loading_length);
 		
         async function build(baseinfo, fans, time, viewer, status){ //建立chart 
             console.log('Building chart')
@@ -639,15 +653,15 @@
             mintime = `"${JSON.stringify(time[0])}"`.substring(2,13)+"00:00:00";
             maxtime = `"${JSON.stringify(time[time.length-1])}"`.substring(2,13)+"23:59:59";
             
-            function fans_dif(data, time) {
+            function fans_dif(data, time, origin) {
               let result = [];
             
-              for (let i = 0; i < data.length; i=i+12) {
+              for (let i = 0; i < data.length - origin.length; i=i+1) {
                 const [currentDate, currentFans] = data[i];
                 const currentTime = new Date(currentDate.replace(' ', 'T'));
             
                 let dayAgo = null;
-                for (let j = i -  time*288 + 288; j >= 0; j--) {
+                for (let j = i -  (time-1)*288; j >= 0; j--) {
                   const [prevDate, prevFans] = data[j];
                   const prevTime = new Date(prevDate.replace(' ', 'T'));
                   let timeDiff = Math.abs(currentTime - prevTime);
@@ -658,6 +672,8 @@
                   ) {
                     dayAgo = data[j];
                     break;
+                  } else if (timeDiff >= (time - 1) * 24 * 60 * 60 * 1000 + 23.8 * 60 * 60 * 1000) {
+                      break
                   }
                 }
             
@@ -670,6 +686,7 @@
                   result.push([currentDate, fansDiff]);
                 }
               }
+              result = [...result, ...origin];
             
               console.log(result);
               return result;
@@ -677,16 +694,31 @@
 
             
             
-            var rate1 = fans_dif(fans, 1);
-            var rate7 = fans_dif(fans, 7);
-            var rate30 = fans_dif(fans, 30);
+            rate1 = fans_dif(fans, 1, rate1);
+            
+            let build_endTime = performance.now();
+            let build_executionTime = build_endTime - build_startTime;
+            console.log(`calculating Time: ${build_executionTime.toFixed(0)} ms`);
+            
+            rate7 = fans_dif(fans, 7, rate7);
+            
+            build_endTime = performance.now();
+            build_executionTime = build_endTime - build_startTime;
+            console.log(`calculating Time: ${build_executionTime.toFixed(0)} ms`);
+            
+            rate30 = fans_dif(fans, 30, rate30);
+            
+            build_endTime = performance.now();
+            build_executionTime = build_endTime - build_startTime;
+            console.log(`calculating Time: ${build_executionTime.toFixed(0)} ms`);
             
             
-            function fansk(data, time){ // 一段时间内粉丝量均值
+            
+            function fansk(data, time, origin){ // 一段时间内粉丝量均值
                 let result = [];
                 
                 // Loop through each record
-                for (let i = 0; i < data.length; i = i + 12) {
+                for (let i = 0; i < data.length - origin.length; i = i + 1) {
                   let record = data[i];
                 
                   // Find the record from one day ago
@@ -725,17 +757,21 @@
                 }
                 
 
-                
+                result = [...result, ...origin];
                 console.log(result);
                 return result;
             }
 
             
-            var fanskk = fansk(fans, 7);
-            var viewerk = fansk(viewer, 0.041);
+            fanskk = fansk(fans, 7, fanskk);
+            viewerk = fansk(viewer, 0.041, viewerk);
+            
+            build_endTime = performance.now();
+            build_executionTime = build_endTime - build_startTime;
+            console.log(`calculating Time: ${build_executionTime.toFixed(0)} ms`);
             
             
-            function fans_node(fans, delta_time) { //获取粉丝里程碑数组
+            function fans_node(fans, delta_time, origin) { //获取粉丝里程碑数组
                 // 假设 fans 和 time 数组已经定义并填充了相应的值
                 // 设置阈值和当前时间
                 // fans 粉丝-时间数组 threshold 超过该值的阈值 delta_time 展示的时间差
@@ -790,7 +826,7 @@
                 }
                 
                 // 遍历 fans 数组
-                for (var j = 0; j < fans.length; j++) {
+                for (var j = 0; j < (base_loading_length==9000?9000:4501); j++) {
                     result = [];
                     // 遍历thresholds
                     for(var i = 0; i < thresholds.length; i++) {
@@ -819,10 +855,11 @@
                     }
                     if (JSON.stringify(result)!='[]') {results.push(result);}
                 }
+                result = [...result, ...origin];
                 return results;
             }
             
-            var fans_nodes = fans_node(fans, 7);
+            fans_nodes = fans_node(fans, 7, fans_nodes);
             if (fans_nodes.length != 0) {
                 if (fans_nodes[fans_nodes.length-1][0]==true){
                     document.getElementById('congratulate').innerHTML = `<h3 id="congratulate_text" style="margin-left:10px; margin-right: 10px; display: inline-block;">恭喜 ${name} 于${fans_nodes[fans_nodes.length-1][2].split(" ")[0]}*达成 ${fans_nodes[fans_nodes.length-1][1]} 粉丝成就！</h3>`;
@@ -834,13 +871,13 @@
                 fans_nodes4chart.push([fans_nodes[i][2], fans_nodes[i][1]]);
             }
             
-            const build_endTime = performance.now();
-            const build_executionTime = build_endTime - build_startTime;
+            build_endTime = performance.now();
+            build_executionTime = build_endTime - build_startTime;
             console.log(`calculating Time: ${build_executionTime.toFixed(0)} ms`);
             
             
             
-            document.getElementById('notes').innerHTML = `* 趋势线计算方法为对应时间点两侧一定范围内所有数据的均值<br>** 为估计值，估计方法是参考里程碑节点两端数据点连成的线性方程<br>本表最后更新时间：${time[time.length-1]} <div id="refresh_icon" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons" mdui-tooltip="{content: '更新图表'}" style="color:black" onclick="document.getElementById('refresh_icon').classList.add('rotate');init(false,true);">refresh</i></div>`;
+            document.getElementById('notes').innerHTML = `* 趋势线计算方法为对应时间点两侧一定范围内所有数据的均值<br>** 为估计值，估计方法是参考里程碑节点两端数据点连成的线性方程<br>本表最后更新时间：${time[time.length-1]} <div id="refresh_icon" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons" mdui-tooltip="{content: '更新图表'}" style="color:black" onclick="document.getElementById('refresh_icon').classList.add('rotate');fanskk = []; viewerk = []; rate1 = [];  rate7 = []; rate30 = [];fans_nodes = [];meta_data = [];base_loading_length=9000;init(false,true,base_loading_length);">refresh</i></div> <div id="add_icon" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons" mdui-tooltip="{content: '加载更多'}" style="color:black" onclick="base_loading_length=base_loading_length+4500;init(false,true,base_loading_length);">add</i></div>`;
             document.getElementById('notes').style.padding = '12px';
             if(document.getElementById('body').offsetWidth<=700){
                 document.getElementById('notes').style.fontSize  = '10px';
