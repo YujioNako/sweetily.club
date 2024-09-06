@@ -141,12 +141,9 @@ $clientSecret = 'wm40par0pj52jqhby6edzrnux5w3am';
 
 // 缓存文件路径
 $schedule_cacheFile = './data/twitch_schedule_cache.json';
+$videos_cacheFile = './data/twitch_videos_cache.json';
 
-// 检查缓存是否存在且未过期
-if (file_exists($schedule_cacheFile) && time() - filemtime($schedule_cacheFile) < 2 * 60 * 60) {
-    // 使用缓存数据
-    $scheduleData = json_decode(file_get_contents($schedule_cacheFile), true);
-} else {
+if(!(file_exists($schedule_cacheFile) && filesize($schedule_cacheFile) !== 0 && time() - filemtime($schedule_cacheFile) < 2 * 60 * 60 && file_exists($videos_cacheFile) && filesize($videos_cacheFile) !== 0 && time() - filemtime($videos_cacheFile) < 2 * 60 * 60)) {
     // 获取访问令牌
     $getTokenURL = 'https://id.twitch.tv/oauth2/token';
     $getTokenData = array(
@@ -185,7 +182,13 @@ if (file_exists($schedule_cacheFile) && time() - filemtime($schedule_cacheFile) 
 
     $data = json_decode($response, true);
     $broadcasterID = $data['data'][0]['id'];
+}
 
+// 检查缓存是否存在且未过期
+if (file_exists($schedule_cacheFile) && filesize($schedule_cacheFile) !== 0 && time() - filemtime($schedule_cacheFile) < 2 * 60 * 60) {
+    // 使用缓存数据
+    $scheduleData = json_decode(file_get_contents($schedule_cacheFile), true);
+} else {
     // 获取直播时间表数据
     $getScheduleURL = 'https://api.twitch.tv/helix/schedule?broadcaster_id=' . $broadcasterID;
 
@@ -243,17 +246,14 @@ if (isset($scheduleData) && is_array($scheduleData)) {
         }
     }
 } else {
-    echo '时间表不存在!<br>No schedule now.';
+    echo '时间表不存在!<br>No schedule now.<br>';
 }
 echo '</tbody>';
 echo '</table>';
 
 
-// 缓存文件路径
-$videos_cacheFile = './data/twitch_videos_cache.json';
-
 // 检查缓存是否存在且未过期
-if (file_exists($videos_cacheFile) && time() - filemtime($videos_cacheFile) < 2 * 60 * 60) {
+if (file_exists($videos_cacheFile) && filesize($videos_cacheFile) !== 0 && time() - filemtime($videos_cacheFile) < 2 * 60 * 60) {
     // 使用缓存数据
     $videosData = json_decode(file_get_contents($videos_cacheFile), true);
 } else {
@@ -306,7 +306,7 @@ if (isset($videosData['data']) &&  is_array($videosData['data'])) {
     echo '</tbody>';
     echo '</table>';
 } else {
-    echo '暂无录播信息!<br>No recordings information now.';
+    echo '暂无录播信息!<br>No recordings information now.<br>';
 }
 
 function UTC8($timestamp) {

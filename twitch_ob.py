@@ -130,7 +130,7 @@ def main():
         print('------------------------')
         data = {'time': follow_result['time'], 'fans': follow_result['fans'], 'viewer': viewer_result['viewers'], 'status': viewer_result['status']}
         write_json(data, './data/data.json')
-        time.sleep(300)
+        time.sleep(720)
 
 while True:
     try:
