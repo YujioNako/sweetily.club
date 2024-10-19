@@ -230,10 +230,95 @@ function checkForHolidayWishes() {
 
 if(document.getElementById("footer")!=null){
 if (window.location.href.indexOf('en') === -1)
-document.getElementById('footer').innerHTML = "<br><HR style='FILTER:alpha(opacity=100,finishopacity=0,style=3)' width='90%' color=#C0C0C0 SIZE=3><div class='mdui-container-fluid' style='max-width:1500px;'><h3 id='留言板'>留言板</h3><div class='mdui-table-fluid mdui-table th' style='width:100%;'><br><form action='/comment/comment.php' method='post'><center><table class='mdui-table' style='max-width:1200px;'><tbody><tr><th><label class='mdui-textfield-label'>昵称</label><input type='text' class='mdui-textfield-input' name='name' placeholder='请输入昵称' required='required' maxlength='25' style='width:98%;'><br><label class='mdui-textfield-label'>评论</label><input type='text' class='mdui-textfield-input' name='comment' placeholder='要讲文明哟~' required='required' maxlength='200' style='width:98%;'><br><label class='mdui-textfield-label' style='display:none'>电邮</label><input type='text' class='mdui-textfield-input' name='contact' placeholder='或者其他联系方式（选填）' maxlength='200' style='width:98%;display:none;'><br><center><input class='mdui-btn mdui-ripple mdui-btn-raised mdui-btn-dense mdui-color-theme' type='submit' id ='submitButton' value='发送' onclick='' style='color:#FFFFFF!important;margin-right: 10px;'></center></th></tr></tbody></table></center></form><br><embed src='/sql_comment/' style='width:100%;max-width:1200px;'/></div></div><br><div style='margin-bottom: -15px; padding-bottom:20px; padding-top:20px; margin-left: -10px; margin-right: -10px;background: linear-gradient(to top, rgba(238, 238, 238, 1) 70%, rgba(238, 238, 238, 0.8) 85%, rgba(238, 238, 238, 0) 100%);'><font size='2' color=#C0C0C0>©2022-2023 Powered by <a href='https://github.com/Tvogmbh/' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color='#C0C0C0' target='_blank'>Tvogmbh</font></a> · Pro-Ivan Studio 版权所有</font><br><a href='https://stats.uptimerobot.com/Oo6ykFNrDn' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color=#C0C0C0>站点在线状态</font></a><font size='2' color=#C0C0C0> · </font><a href='/test_server/' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color=#C0C0C0>网站服务状态</font></a><br><a href='http://beian.miit.gov.cn' style='display:inline-block;text-decoration:none;height:20px;line-height:20px;' target='_blank'><font size='2' color=#C0C0C0>京ICP备2022003448号-1/2</font></a><font size='2' color=#C0C0C0> · </font><a target='_blank' href='http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011402012324' style='display:inline-block;text-decoration:none;height:20px;line-height:20px;'><img src='/img/beian.png' style='float:left;'/><font size='2' color=#C0C0C0>京公网安备 11011402012324号</font></a></div>";
+document.getElementById('footer').innerHTML = `<br><HR style='FILTER:alpha(opacity=100,finishopacity=0,style=3)' width='90%' color=#C0C0C0 SIZE=3><div class='mdui-container-fluid' style='max-width:1500px;'><h3 id='留言板'>留言板</h3><div class='mdui-table-fluid mdui-table th' style='width:100%;'><br><form id='comment_form'><center><table class='mdui-table' style='max-width:1200px;'><tbody><tr><th><label class='mdui-textfield-label'>昵称</label><input type='text' class='mdui-textfield-input' name='name' placeholder='请输入昵称' required='required' maxlength='25' style='width:98%;'><br><label class='mdui-textfield-label'>评论</label><input type='text' class='mdui-textfield-input' name='comment' placeholder='要讲文明哟~' required='required' maxlength='200' style='width:98%;'><br><label class='mdui-textfield-label' style='display:none'>电邮</label><input type='text' class='mdui-textfield-input' name='contact' placeholder='或者其他联系方式（选填）' maxlength='200' style='width:98%;display:none;'><br><center><input class='mdui-btn mdui-ripple mdui-btn-raised mdui-btn-dense mdui-color-theme' type='submit' id ='submitButton' value='发送' onclick='' style='color:#FFFFFF!important;margin-right: 10px;'></center></th></tr></tbody></table></center></form><div id='comment_result'></div>
+        <script>
+            document.getElementById('comment_form').addEventListener('submit', function(event) {
+                event.preventDefault(); // 阻止表单的默认提交行为
+    
+                // 获取表单数据
+                const formData = new FormData(this);
+    
+                // 使用Fetch API发送AJAX请求
+                fetch('/comment/comment.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // 将返回的HTML插入到页面的特定位置
+                    document.getElementById('comment_result').innerHTML = html;
+                })
+                .then(() => {
+                    //清空表单
+                    var form = document.getElementById('comment_form');
+                    if (form) {
+                        var inputs = form.getElementsByTagName('input');
+                        for (var i = 0; i < inputs.length; i++) {
+                            if (inputs[i].type === 'text') {
+                                inputs[i].value = '';
+                            }
+                        }
+                    }
+                    //刷新embed
+                    var embedElement = document.getElementById('comment_embed');
+                    if (embedElement) {
+                        var currentSrc = embedElement.src;
+                        embedElement.src = currentSrc; // 重新设置相同的src以刷新内容
+                    } else {
+                        console.error('Embed element not found.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        </script>
+<br><embed id='comment_embed' src='/sql_comment/' style='width:100%;max-width:1200px;'/></div></div><br><div style='margin-bottom: -15px; padding-bottom:20px; padding-top:20px; margin-left: -10px; margin-right: -10px;background: linear-gradient(to top, rgba(238, 238, 238, 1) 70%, rgba(238, 238, 238, 0.8) 85%, rgba(238, 238, 238, 0) 100%);'><font size='2' color=#C0C0C0>©2022-2023 Powered by <a href='https://github.com/Tvogmbh/' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color='#C0C0C0' target='_blank'>Tvogmbh</font></a> · Pro-Ivan Studio 版权所有</font><br><a href='https://stats.uptimerobot.com/Oo6ykFNrDn' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color=#C0C0C0>站点在线状态</font></a><font size='2' color=#C0C0C0> · </font><a href='/test_server/' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color=#C0C0C0>网站服务状态</font></a><br><a href='http://beian.miit.gov.cn' style='display:inline-block;text-decoration:none;height:20px;line-height:20px;' target='_blank'><font size='2' color=#C0C0C0>京ICP备2022003448号-1/2</font></a><font size='2' color=#C0C0C0> · </font><a target='_blank' href='http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011402012324' style='display:inline-block;text-decoration:none;height:20px;line-height:20px;'><img src='/img/beian.png' style='float:left;'/><font size='2' color=#C0C0C0>京公网安备 11011402012324号</font></a></div>`;
 else
-document.getElementById('footer').innerHTML = "<br><HR style='FILTER:alpha(opacity=100,finishopacity=0,style=3)' width='90%' color=#C0C0C0 SIZE=3><div class='mdui-container-fluid' style='max-width:1500px;'><h3 id='留言板'>Leave a message?</h3><div class='mdui-table-fluid mdui-table th' style='width:100%;'><br><form action='/comment/comment.php' method='post'><center><table class='mdui-table' style='max-width:1200px;'><tbody><tr><th><label class='mdui-textfield-label'>Nickname</label><input type='text' class='mdui-textfield-input' name='name' placeholder='Nickname plz~' required='required' maxlength='25' style='width:98%;'><br><label class='mdui-textfield-label'>Content</label><input type='text' class='mdui-textfield-input' name='comment' placeholder='Be polite~' required='required' maxlength='200' style='width:98%;'><label class='mdui-textfield-label' style='display:none'>电邮</label><input type='text' class='mdui-textfield-input' name='contact' placeholder='或者其他联系方式（选填）' maxlength='200' style='width:98%;display:none;'><br><center><input class='mdui-btn mdui-ripple mdui-btn-raised mdui-btn-dense mdui-color-theme' type='submit' id ='submitButton' value='Submit' onclick='' style='color:#FFFFFF!important;margin-right: 10px;'></center></th></tr></tbody></table></center></form><br><embed src='/sql_comment/' style='width:100%;max-width:1200px;'/></div></div><br><div style='margin-bottom: -15px; padding-bottom:20px; padding-top:20px; margin-left: -10px; margin-right: -10px;background: linear-gradient(to top, rgba(238, 238, 238, 1) 70%, rgba(238, 238, 238, 0.8) 85%, rgba(238, 238, 238, 0) 100%);'><font size='2' color=#C0C0C0>©2022-2023 Powered by <a href='https://github.com/Tvogmbh/' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color='#C0C0C0' target='_blank'>Tvogmbh</font></a> · Pro-Ivan Studio & Sweetily All Right Reserve</font><br><a href='https://stats.uptimerobot.com/Oo6ykFNrDn' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color=#C0C0C0>Website status</font></a><font size='2' color=#C0C0C0> · </font><a href='/test_server/' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color=#C0C0C0>Server Status</font></a><br><a href='http://beian.miit.gov.cn' style='display:inline-block;text-decoration:none;height:20px;line-height:20px;' target='_blank'><font size='2' color=#C0C0C0>京ICP备2022003448号-1/2</font></a><font size='2' color=#C0C0C0> · </font><a target='_blank' href='http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011402012324' style='display:inline-block;text-decoration:none;height:20px;line-height:20px;'><img src='/img/beian.png' style='float:left;'/><font size='2' color=#C0C0C0>京公网安备 11011402012324号</font></a></div>";
+document.getElementById('footer').innerHTML = `<br><HR style='FILTER:alpha(opacity=100,finishopacity=0,style=3)' width='90%' color=#C0C0C0 SIZE=3><div class='mdui-container-fluid' style='max-width:1500px;'><h3 id='留言板'>Leave a message?</h3><div class='mdui-table-fluid mdui-table th' style='width:100%;'><br><form id='comment_form'><center><table class='mdui-table' style='max-width:1200px;'><tbody><tr><th><label class='mdui-textfield-label'>Nickname</label><input type='text' class='mdui-textfield-input' name='name' placeholder='Nickname plz~' required='required' maxlength='25' style='width:98%;'><br><label class='mdui-textfield-label'>Content</label><input type='text' class='mdui-textfield-input' name='comment' placeholder='Be polite~' required='required' maxlength='200' style='width:98%;'><label class='mdui-textfield-label' style='display:none'>电邮</label><input type='text' class='mdui-textfield-input' name='contact' placeholder='或者其他联系方式（选填）' maxlength='200' style='width:98%;display:none;'><br><center><input class='mdui-btn mdui-ripple mdui-btn-raised mdui-btn-dense mdui-color-theme' type='submit' id ='submitButton' value='Submit' onclick='' style='color:#FFFFFF!important;margin-right: 10px;'></center></th></tr></tbody></table></center></form><div id='comment_result'></div>
+        <script>
+            document.getElementById('comment_form').addEventListener('submit', function(event) {
+                event.preventDefault(); // 阻止表单的默认提交行为
+    
+                // 获取表单数据
+                const formData = new FormData(this);
+    
+                // 使用Fetch API发送AJAX请求
+                fetch('/comment/comment.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // 将返回的HTML插入到页面的特定位置
+                    document.getElementById('comment_result').innerHTML = html;
+                })
+                .then(() => {
+                    //清空表单
+                    var form = document.getElementById('comment_form');
+                    if (form) {
+                        var inputs = form.getElementsByTagName('input');
+                        for (var i = 0; i < inputs.length; i++) {
+                            if (inputs[i].type === 'text') {
+                                inputs[i].value = '';
+                            }
+                        }
+                    }
+                    //刷新embed
+                    var embedElement = document.getElementById('comment_embed');
+                    if (embedElement) {
+                        var currentSrc = embedElement.src;
+                        embedElement.src = currentSrc; // 重新设置相同的src以刷新内容
+                    } else {
+                        console.error('Embed element not found.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        </script>
+<br><embed id='comment_embed' src='/sql_comment/' style='width:100%;max-width:1200px;'/></div></div><br><div style='margin-bottom: -15px; padding-bottom:20px; padding-top:20px; margin-left: -10px; margin-right: -10px;background: linear-gradient(to top, rgba(238, 238, 238, 1) 70%, rgba(238, 238, 238, 0.8) 85%, rgba(238, 238, 238, 0) 100%);'><font size='2' color=#C0C0C0>©2022-2023 Powered by <a href='https://github.com/Tvogmbh/' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color='#C0C0C0' target='_blank'>Tvogmbh</font></a> · Pro-Ivan Studio & Sweetily All Right Reserve</font><br><a href='https://stats.uptimerobot.com/Oo6ykFNrDn' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color=#C0C0C0>Website status</font></a><font size='2' color=#C0C0C0> · </font><a href='/test_server/' target='_blank' style='display:inline-block;text-decoration: none;'><font size='2' color=#C0C0C0>Server Status</font></a><br><a href='http://beian.miit.gov.cn' style='display:inline-block;text-decoration:none;height:20px;line-height:20px;' target='_blank'><font size='2' color=#C0C0C0>京ICP备2022003448号-1/2</font></a><font size='2' color=#C0C0C0> · </font><a target='_blank' href='http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11011402012324' style='display:inline-block;text-decoration:none;height:20px;line-height:20px;'><img src='/img/beian.png' style='float:left;'/><font size='2' color=#C0C0C0>京公网安备 11011402012324号</font></a></div>`;
 }
+    var scriptElement = document.createElement('script');
+    scriptElement.text = document.getElementById('footer').querySelector('script').innerHTML;
+    document.getElementById('footer').appendChild(scriptElement);
 
 setTimeout(function() {
     if(document.getElementById('body').offsetWidth<=720&&document.getElementById('title').innerHTML.length>18){

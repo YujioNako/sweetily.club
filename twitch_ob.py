@@ -6,6 +6,8 @@ import json
 import socket
 import re
 
+import os
+
 # 设置你的Client ID和Client Secret
 client_id = 'xrunsfzqxqqpo91ind4ptsvayxbs3j'
 client_secret = 'wm40par0pj52jqhby6edzrnux5w3am'
@@ -92,6 +94,28 @@ def get_viewer_count(username, headers):
     return viewer_count
 
 
+def initialize_file(file):
+    # 检查文件是否存在，如果不存在则创建并初始化为空数组
+    if not os.path.exists(file):
+        with open(file, 'w') as f:
+            json.dump([], f)
+
+
+def manage_data_file():
+    # 检查data.json大小，超过3MB则删除最早的数据
+    file_path = './data/data.json'
+    while os.path.getsize(file_path) > 3 * 1024 * 1024:  # 3MB
+        with open(file_path, 'r') as f:
+            file_data = json.load(f)
+
+        # 删除最早的数据
+        if file_data:
+            file_data.pop(0)
+
+        with open(file_path, 'w') as f:
+            json.dump(file_data, f)
+
+
 def write_json(data, file):
     # 读取文件内容
     with open(file, 'r') as f:
@@ -104,6 +128,10 @@ def write_json(data, file):
     with open(file, 'w') as f:
         json.dump(file_data, f)
 
+
+# 初始化文件
+initialize_file('./data/forever_data.json')
+initialize_file('./data/data.json')
 
 # 打印关注者信息
 headers = get_access_token()
@@ -129,7 +157,14 @@ def main():
             print(f"时间：{viewer_result['time']} 未直播")
         print('------------------------')
         data = {'time': follow_result['time'], 'fans': follow_result['fans'], 'viewer': viewer_result['viewers'], 'status': viewer_result['status']}
+        
+        # 写入数据到两个文件
+        write_json(data, './data/forever_data.json')
         write_json(data, './data/data.json')
+
+        # 管理data.json的大小
+        manage_data_file()
+        
         time.sleep(720)
 
 while True:
