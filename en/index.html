@@ -703,7 +703,7 @@
                   // Find the record from one day ago
                   let dayAgo = [];
                   for (let j = i; j >= 0; j--) {
-                    let timeDiff = new Date(data[j][0].replace(' ', 'T')) - new Date(record[0].replace(' ', 'T'));//iPadOS似乎不支持Date(x-x-x x:x:x)，但支持(x-x-xTx:x:x)
+                    let timeDiff = new Date(record[0].replace(' ', 'T')) - new Date(data[j][0].replace(' ', 'T'));//iPadOS似乎不支持Date(x-x-x x:x:x)，但支持(x-x-xTx:x:x)
                     if (timeDiff >= -0.1*60*60*1000 && timeDiff <= (0.5*(time*24*60*60*1000) + 0.1*60*60*1000)) {
                         dayAgo.push(data[j][1]);
                     }
@@ -801,6 +801,7 @@
                 
                 // 遍历 fans 数组
                 for (var j = 0; j < (base_loading_length==9000?9000:4501); j++) {
+                    if(j >= fans.length) break;
                     result = [];
                     // 遍历thresholds
                     for(var i = 0; i < thresholds.length; i++) {
